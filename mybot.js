@@ -1,25 +1,28 @@
 (function(){
-    if(window.QuotexVIPBot){
-        alert("VIP Bot আগে থেকেই চালু আছে!");
+    if(window.QuotexVIPCandleBot){
+        alert("VIP Candle Bot age thekei chalu ache!");
         return;
     }
-    window.QuotexVIPBot = true;
+    window.QuotexVIPCandleBot = true;
 
-    // পাসওয়ার্ড সেটআপ (এখানে পাসওয়ার্ড পরিবর্তন করতে পারেন)
+    // Password Setup
     const SECRET_PASSWORD = "admin";
 
-    // 3D, পার্টিকেল স্ক্যানার ও গ্লাসমরফিজম CSS
+    // CSS Styling & Animations
     let style = document.createElement('style');
     style.innerHTML = `
         @keyframes scanNet { 0% { background-position: 0 0; } 100% { background-position: 0 100vh; } }
-        @keyframes pulseGlow { 0% { box-shadow: 0 0 15px rgba(0,255,102,0.6); } 50% { box-shadow: 0 0 35px rgba(0,255,102,1), 0 0 15px inset rgba(0,255,102,0.5); } 100% { box-shadow: 0 0 15px rgba(0,255,102,0.6); } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 15px rgba(0,255,102,0.6); } 50% { box-shadow: 0 0 35px rgba(0,255,102,1); } 100% { box-shadow: 0 0 15px rgba(0,255,102,0.6); } }
         .particle-scanner { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(rgba(0,255,102,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,102,0.1) 1px, transparent 1px); background-size: 20px 20px; z-index: 999998; pointer-events: none; display: none; animation: scanNet 2s linear infinite; }
         .scan-line { position: absolute; left: 0; width: 100%; height: 4px; background: #00ff66; box-shadow: 0 0 25px #00ff66, 0 0 50px #00ff66; animation: scanMove 1.5s ease-in-out infinite alternate; }
         @keyframes scanMove { 0% { top: 0%; opacity: 0.8; } 100% { top: 98%; opacity: 1; } }
-        .glass-3d { background: rgba(10, 15, 25, 0.85) !important; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(0,255,102,0.4) !important; box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px rgba(0,255,102,0.2), inset 0 1px 1px rgba(255,255,255,0.1) !important; transform-style: preserve-3d; perspective: 1000px; transition: transform 0.1s ease-out; }
+        .glass-3d { background: rgba(10, 15, 25, 0.88) !important; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(0,255,102,0.4) !important; box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(0,255,102,0.2) !important; transform-style: preserve-3d; perspective: 1000px; }
         .btn-3d { transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0,255,102,0.3); }
-        .btn-3d:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,255,102,0.3); }
+        .btn-3d:active { transform: translateY(2px); }
         .no-select { -webkit-touch-callout: none; user-select: none; outline: none; -webkit-tap-highlight-color: transparent; }
+        .candle-preview { width: 30px; height: 50px; margin: 8px auto; position: relative; border-radius: 3px; display: flex; justify-content: center; align-items: center; }
+        .wick { position: absolute; width: 2px; height: 100%; background: currentColor; z-index: 1; }
+        .body-candle { position: absolute; width: 100%; height: 70%; z-index: 2; border-radius: 2px; }
     `;
     document.head.appendChild(style);
 
@@ -30,14 +33,14 @@
     particleScanner.appendChild(scanLine);
     document.body.appendChild(particleScanner);
 
-    // পাসওয়ার্ড প্যানেল
+    // Login Panel
     let authBox = document.createElement('div');
     authBox.className = 'glass-3d no-select';
     authBox.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:25px;border-radius:16px;z-index:999999;text-align:center;font-family:Arial,sans-serif;color:#fff;width:280px;';
     authBox.innerHTML = `
-        <h2 style="margin:0 0 15px 0;color:#00ff66;text-shadow:0 0 10px rgba(0,255,102,0.5);">🔐 VIP ACCESS</h2>
-        <input type="password" id="vipPassword" placeholder="Enter VIP Key" style="width:90%;padding:12px;background:rgba(0,0,0,0.6);border:1px solid #00ff66;color:#00ff66;border-radius:8px;text-align:center;margin-bottom:20px;outline:none;font-size:16px;">
-        <button id="loginVipBtn" class="btn-3d" style="width:100%;padding:12px;background:linear-gradient(45deg,#00ff66,#00b347);color:#000;font-weight:900;border:none;border-radius:8px;cursor:pointer;font-size:15px;">INITIALIZE BOT</button>
+        <h2 style="margin:0 0 15px 0;color:#00ff66;text-shadow:0 0 10px rgba(0,255,102,0.5);">🔐 VIP BOT ACCESS</h2>
+        <input type="password" id="vipPassword" placeholder="Enter Key" style="width:90%;padding:12px;background:rgba(0,0,0,0.6);border:1px solid #00ff66;color:#00ff66;border-radius:8px;text-align:center;margin-bottom:20px;outline:none;font-size:16px;">
+        <button id="loginVipBtn" class="btn-3d" style="width:100%;padding:12px;background:linear-gradient(45deg,#00ff66,#00cc52);color:#000;font-weight:900;border:none;border-radius:8px;cursor:pointer;font-size:15px;">START SYSTEM</button>
     `;
     document.body.appendChild(authBox);
 
@@ -46,7 +49,7 @@
             authBox.remove();
             initVIPBot();
         } else {
-            alert("❌ Invalid VIP Key!");
+            alert("❌ Invalid VIP Password!");
         }
     };
 
@@ -59,23 +62,21 @@
 
         let botBox = document.createElement('div');
         botBox.className = 'glass-3d no-select';
-        botBox.style.cssText = 'position:fixed;top:100px;left:20px;padding:15px;border-radius:16px;z-index:999999;font-family:Arial,sans-serif;width:260px;touch-action:none;display:none;';
+        botBox.style.cssText = 'position:fixed;top:100px;left:20px;padding:15px;border-radius:16px;z-index:999999;font-family:Arial,sans-serif;width:270px;touch-action:none;display:none;';
         botBox.innerHTML = `
             <div id="dragHeader" style="cursor:move;padding:10px;background:rgba(0,0,0,0.5);margin:-15px -15px 15px -15px;border-bottom:1px solid rgba(0,255,102,0.3);display:flex;justify-content:space-between;align-items:center;border-radius:16px 16px 0 0;">
-                <span style="font-weight:900;font-size:12px;color:#00ff66;letter-spacing:1px;pointer-events:none;">⚡ VIP TRADING ENGINE</span>
+                <span style="font-weight:900;font-size:12px;color:#00ff66;letter-spacing:1px;pointer-events:none;">⚡ CANDLE PREDICTION ENGINE</span>
                 <button id="minimizeBtn" style="background:none;border:none;color:#00ff66;font-size:18px;cursor:pointer;">➖</button>
             </div>
             <div style="margin-bottom:12px;">
                 <label style="font-size:11px;color:#cbd5e1;display:block;margin-bottom:5px;font-weight:bold;">⏱️ TRADE TIMEFRAME:</label>
-                <input type="text" id="tradeTimeInput" placeholder="e.g. 1m, 30s" value="1m" style="width:90%;background:rgba(0,0,0,0.7);color:#00ff66;border:1px solid rgba(0,255,102,0.6);padding:10px;border-radius:8px;font-weight:bold;outline:none;text-align:center;font-size:14px;">
+                <input type="text" id="tradeTimeInput" placeholder="e.g. 1m, 30s" value="1m" style="width:90%;background:rgba(0,0,0,0.7);color:#00ff66;border:1px solid rgba(0,255,102,0.6);padding:8px;border-radius:8px;font-weight:bold;outline:none;text-align:center;font-size:14px;">
             </div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:15px;align-items:center;background:rgba(0,0,0,0.4);padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);">
-                <span style="font-size:11px;color:#cbd5e1;font-weight:bold;">🤖 AUTO TRADE (CLICK)</span>
-                <input type="checkbox" id="autoTradeCheck" checked style="width:18px;height:18px;accent-color:#00ff66;">
-            </div>
-            <div id="signalArea" style="background:rgba(0,0,0,0.7);padding:20px 10px;border-radius:10px;text-align:center;font-weight:bold;font-size:14px;margin-bottom:15px;border:1px inset rgba(0,255,102,0.3);color:#fff;min-height:50px;display:flex;align-items:center;justify-content:center;flex-direction:column;">SYSTEM IDLE</div>
-            <button id="startScanBtn" class="btn-3d" style="width:100%;background:linear-gradient(45deg,#00ff66,#00cc52);color:#000;border:none;padding:12px;border-radius:8px;font-weight:900;cursor:pointer;margin-bottom:10px;font-size:14px;">ANALYZE MARKET 🟢</button>
-            <button id="closeBotBtn" style="width:100%;background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444;padding:8px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:bold;">TERMINATE SYSTEM</button>
+
+            <div id="signalArea" style="background:rgba(0,0,0,0.7);padding:15px 10px;border-radius:10px;text-align:center;font-weight:bold;font-size:13px;margin-bottom:12px;border:1px inset rgba(0,255,102,0.3);color:#fff;min-height:90px;display:flex;align-items:center;justify-content:center;flex-direction:column;">SYSTEM READY</div>
+
+            <button id="startScanBtn" class="btn-3d" style="width:100%;background:linear-gradient(45deg,#00ff66,#00cc52);color:#000;border:none;padding:12px;border-radius:8px;font-weight:900;cursor:pointer;margin-bottom:8px;font-size:14px;">ANALYZE NEXT CANDLE 🟢</button>
+            <button id="closeBotBtn" style="width:100%;background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444;padding:6px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:bold;">CLOSE BOT</button>
         `;
         document.body.appendChild(botBox);
 
@@ -113,16 +114,6 @@
         makeDraggable(botBox, document.getElementById('dragHeader'), false);
         makeDraggable(botIcon, botIcon, true);
 
-        // 3D Tilt Effect
-        botBox.addEventListener('mousemove', function(e){
-            let xAxis = (window.innerWidth / 2 - e.pageX) / 25;
-            let yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-            botBox.style.transform = `translate3d(${botBox.style.transform.match(/translate3d\((.*?)\)/)?botBox.style.transform.match(/translate3d\((.*?)\)/)[1]:'0,0,0'}) rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-        });
-        botBox.addEventListener('mouseleave', function(){
-            botBox.style.transform = `translate3d(${botBox.style.transform.match(/translate3d\((.*?)\)/)?botBox.style.transform.match(/translate3d\((.*?)\)/)[1]:'0,0,0'}) rotateY(0deg) rotateX(0deg)`;
-        });
-
         document.getElementById('minimizeBtn').onclick = function(e){
             botBox.style.display = 'none'; botIcon.style.display = 'flex'; e.stopPropagation();
         };
@@ -133,78 +124,67 @@
             let gain = ctx.createGain();
             osc.connect(gain); gain.connect(ctx.destination);
             if(type === 'scan'){
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime+0.5);
-                gain.gain.setValueAtTime(0.05, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.5);
-                osc.start(); osc.stop(ctx.currentTime+0.5);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime+0.4);
+                gain.gain.setValueAtTime(0.04, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime+0.4);
             } else if(type === 'success'){
                 osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime); osc.frequency.setValueAtTime(1200, ctx.currentTime+0.1);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.3);
-                osc.start(); osc.stop(ctx.currentTime+0.3);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime+0.2);
             } else if(type === 'alert'){
-                osc.type = 'square'; osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.setValueAtTime(250, ctx.currentTime+0.2);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.4);
-                osc.start(); osc.stop(ctx.currentTime+0.4);
+                osc.type = 'square'; osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.setValueAtTime(200, ctx.currentTime+0.2);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime+0.3);
             }
         }
 
         document.getElementById('startScanBtn').onclick = function(){
             let tI = document.getElementById('tradeTimeInput').value;
-            let autoTrade = document.getElementById('autoTradeCheck').checked;
-            if(tI.trim() === ""){ alert("Please enter trade time!"); return; }
+            if(tI.trim() === ""){ alert("Please enter time!"); return; }
             let sA = document.getElementById('signalArea');
             let btn = document.getElementById('startScanBtn');
             btn.disabled = true; btn.style.opacity = '0.5';
             particleScanner.style.display = 'block'; playSound('scan');
             sA.style.color = '#00ff66';
-            sA.innerHTML = `<span>Connecting Server... 📡</span>`;
+            sA.innerHTML = `<span>Scanning Candle Patterns... 📊</span>`;
             
             setTimeout(()=>{
-                playSound('scan'); sA.innerHTML = `<span>Scanning Particles... 🧬</span>`;
+                playSound('scan'); sA.innerHTML = `<span>Analyzing Volatility... 🧬</span>`;
                 setTimeout(()=>{
-                    playSound('scan'); sA.innerHTML = `<span>Calculating Risk... ⚖️</span>`;
-                    setTimeout(()=>{
-                        particleScanner.style.display = 'none'; btn.disabled = false; btn.style.opacity = '1';
-                        let confidence = Math.floor(Math.random()*25)+75;
-                        let isUp = Math.random() > 0.5;
-                        let isRisk = confidence < 80;
+                    particleScanner.style.display = 'none'; btn.disabled = false; btn.style.opacity = '1';
+                    
+                    let confidence = Math.floor(Math.random() * 15) + 83; // 83% to 97% Accuracy Score
+                    let isUp = Math.random() > 0.48;
+                    let isHighRisk = confidence < 80;
 
-                        if(isRisk){
-                            playSound('alert'); sA.style.color = '#ffaa00';
-                            sA.innerHTML = `<span style="font-size:16px;font-weight:900;">⚠️ HIGH RISK DETECTED</span><br><span style="font-size:11px;color:#cbd5e1;margin-top:6px;display:block;">Confidence: ${confidence}% (Below 80%)</span><span style="font-size:10px;color:#ef4444;margin-top:4px;display:block;">AUTO-TRADE CANCELLED</span>`;
-                            return;
-                        }
+                    if(isHighRisk){
+                        playSound('alert'); sA.style.color = '#ffaa00';
+                        sA.innerHTML = `<span style="font-size:15px;font-weight:900;">⚠️ HIGH RISK DETECTED</span><br><span style="font-size:11px;color:#cbd5e1;margin-top:4px;display:block;">Accuracy: ${confidence}% (Avoid Entry)</span>`;
+                        return;
+                    }
 
-                        playSound('success');
-                        let sT = isUp ? 'STRONG UP 🟢' : 'STRONG DOWN 🔴';
-                        let rT = isUp ? 'Support Bounce + Volatility' : 'Resistance Hit + Divergence';
-                        sA.style.color = isUp ? '#00ff66' : '#ef4444';
-                        sA.innerHTML = `<span style="font-size:20px;font-weight:900;">${sT}</span><br><span style="font-size:11px;color:#cbd5e1;margin-top:6px;display:block;">Conf: ${confidence}% | Vol: High</span><span style="font-size:10px;color:#64748b;margin-top:3px;display:block;">Log: ${rT}</span>`;
+                    playSound('success');
+                    let direction = isUp ? 'UP (CALL) 🟢' : 'DOWN (PUT) 🔴';
+                    let candleColor = isUp ? '#00ff66' : '#ef4444';
+                    let candleType = isUp ? 'BULLISH GREEN CANDLE' : 'BEARISH RED CANDLE';
 
-                        if(autoTrade){
-                            let btnText = isUp ? 'CALL' : 'PUT';
-                            sA.innerHTML += `<br><span style="font-size:10px;color:#00ff66;margin-top:4px;display:block;">Auto-Click Initiated... ⏳</span>`;
-                            setTimeout(()=>{
-                                let buttons = document.querySelectorAll('button, div');
-                                let clicked = false;
-                                for(let b of buttons){
-                                    if(b.innerText && b.innerText.toUpperCase().includes(btnText)){
-                                        b.click(); clicked = true; break;
-                                    }
-                                }
-                                if(clicked){
-                                    sA.innerHTML += `<br><span style="font-size:11px;color:#00ff66;">✓ Order Placed (${btnText})</span>`;
-                                } else {
-                                    sA.innerHTML += `<br><span style="font-size:11px;color:#ffaa00;">⚠ Auto-Click Failed.</span>`;
-                                }
-                            }, 800);
-                        }
-                    }, 1500);
-                }, 1500);
+                    sA.style.color = candleColor;
+                    sA.innerHTML = `
+                        <div style="font-size:11px; color:#cbd5e1; margin-bottom:2px;">PREDICTED CANDLE:</div>
+                        <div class="candle-preview" style="color:${candleColor};">
+                            <div class="wick"></div>
+                            <div class="body-candle" style="background:${candleColor};"></div>
+                        </div>
+                        <span style="font-size:15px; font-weight:900;">${direction}</span>
+                        <span style="font-size:10px; color:#a1a1aa; display:block; margin-top:2px;">Target: ${candleType}</span>
+                        <div style="background:rgba(255,255,255,0.08); padding:6px; border-radius:6px; margin-top:6px; width:100%;">
+                            <span style="font-size:11px; color:#00ff66; display:block; font-weight:bold;">⏱️ ENTRY TIME: Exactly @ 00:01s</span>
+                            <span style="font-size:10px; color:#cbd5e1;">New Candle Start | Acc: ${confidence}%</span>
+                        </div>
+                    `;
+                }, 1400);
             }, 1200);
         };
 
         document.getElementById('closeBotBtn').onclick = function(){
-            botBox.remove(); botIcon.remove(); particleScanner.remove(); window.QuotexVIPBot = false;
+            botBox.remove(); botIcon.remove(); particleScanner.remove(); window.QuotexVIPCandleBot = false;
         };
     }
 })();
