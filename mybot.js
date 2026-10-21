@@ -4,12 +4,11 @@
         return;
     }
     window.QuotexRealGeminiBot = true;
-
-    // ১. কনফিগারেশন সেটআপ
     const CONFIG = {
         SECRET_PASSWORD: "admin",
-        API_KEY: "AQ.Ab8RN6Ju82vtBQLVa8tKgWrN4628IDLYAcA6i4RZAJSBSgTCVA", // গুগল এআই স্টুডিওর AIzaSy... দিয়ে শুরু হওয়া Key দিতে হবে
-        MODEL: "gemini-1.5-flash"
+        API_KEY: "AQ.Ab8RN6Ju82vtBQLVa8tKgWrN4628IDLYAcA6i4RZAJSBSgTCVA"
+        MODEL: "gemini-1.5-flash",
+        API_URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
     };
 
     // ২. সিএসএস স্টাইল
@@ -38,11 +37,11 @@
     laserScanEl.className = "qpb-laser";
     document.body.appendChild(laserScanEl);
 
-    // ৩. পাসওয়ার্ড ও API Key ডায়ালগ
+    // ৩. শুধুমাত্র পাসওয়ার্ড ডায়ালগ (API Key ইনপুট বাদ দেওয়া হয়েছে)
     const loginModal = el("div", {
         position: "fixed", top: "50%", left: "50%",
         transform: "translate(-50%,-50%)",
-        width: "min(320px, calc(100vw - 24px))",
+        width: "min(310px, calc(100vw - 24px))",
         padding: "22px", borderRadius: "14px",
         zIndex: "2147483647", fontFamily: "Arial, sans-serif",
         textAlign: "center"
@@ -51,32 +50,19 @@
     loginModal.innerHTML = `
         <h3 style="color:#00ff66; margin:0 0 4px; font-size: 18px;">✨ REAL GEMINI 1.5 BOT</h3>
         <p style="color:#94a3b8; margin:0 0 15px; font-size: 10px;">Direct AI Market Neural Engine</p>
-        <input id="qpb-pass" type="password" class="qpb-input" placeholder="Password (admin)" autocomplete="off">
-        <input id="qpb-key" type="password" class="qpb-input" placeholder="Enter Gemini API Key (AIzaSy...)" autocomplete="off">
+        <input id="qpb-pass" type="password" class="qpb-input" placeholder="Enter Password (admin)" autocomplete="off">
         <button id="qpb-login-btn" class="qpb-btn qpb-green" style="margin-top:14px;">LAUNCH ENGINE</button>
         <div id="qpb-login-error" style="color:#ff7070; font-size:12px; margin-top:10px;"></div>
     `;
     document.body.appendChild(loginModal);
 
     const loginInput = loginModal.querySelector("#qpb-pass");
-    const keyInput = loginModal.querySelector("#qpb-key");
 
     function handleLogin() {
         if (loginInput.value !== CONFIG.SECRET_PASSWORD) {
             loginModal.querySelector("#qpb-login-error").textContent = "❌ পাসওয়ার্ড ভুল হয়েছে!";
             return;
         }
-        
-        const enteredKey = keyInput.value.trim();
-        if (enteredKey !== "") {
-            CONFIG.API_KEY = enteredKey;
-        }
-
-        if (!CONFIG.API_KEY || !CONFIG.API_KEY.startsWith("AIzaSy")) {
-            loginModal.querySelector("#qpb-login-error").textContent = "❌ সঠিক Gemini API Key (AIzaSy...) দিন!";
-            return;
-        }
-
         loginModal.remove();
         initializeBot();
     }
@@ -112,7 +98,7 @@
         });
         botBox.className = "qpb-panel no-select";
         botBox.innerHTML = `
-            <div id="qpb-header" style="cursor:move; padding:8px; background:rgba(0,0,0,0.5); margin:-15px -15px 12px -15px; border-bottom:1px solid rgba(0,255,102,0.3); display:flex; justify-between:center; align-items:center; border-radius:16px 16px 0 0;">
+            <div id="qpb-header" style="cursor:move; padding:8px; background:rgba(0,0,0,0.5); margin:-15px -15px 12px -15px; border-bottom:1px solid rgba(0,255,102,0.3); display:flex; justify-content:space-between; align-items:center; border-radius:16px 16px 0 0;">
                 <span style="font-weight:900; font-size:11px; color:#00ff66;">✨ REAL GEMINI 1.5 AI</span>
                 <button id="qpb-min" style="background:none; border:none; color:#00ff66; font-size:16px; cursor:pointer;">➖</button>
             </div>
@@ -148,7 +134,7 @@
         detectMarketName();
         setInterval(detectMarketName, 3000);
 
-        // অটো ক্যানভাস ইমেজ ক্যাপচার
+        // অটো ক্যানভাস ব্যাকগ্রাউন্ড ক্যাপচার
         function getCanvasBase64() {
             const canvasList = document.querySelectorAll('canvas');
             if (!canvasList || canvasList.length === 0) return null;
@@ -167,8 +153,12 @@
             }
         }
 
-        // Gemini API কল ফাংশন (সংশোধিত)
+        // Gemini 1.5 Flash API কল
         async function fetchGeminiAnalysis(activeMarket, timeframe) {
+            if (!CONFIG.API_KEY || CONFIG.API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
+                throw new Error("কোডে আপনার আসল Gemini API Key বসাননি!");
+            }
+
             const canvasBase64 = getCanvasBase64();
             const promptText = `
 You are an expert technical analysis assistant evaluating a trading chart for asset ${activeMarket} with trade duration ${timeframe}.
@@ -190,12 +180,11 @@ REASON: [Short 1-sentence technical reason]
                 });
             }
 
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.MODEL}:generateContent?key=${CONFIG.API_KEY}`;
-
-            const response = await fetch(endpoint, {
+            const response = await fetch(CONFIG.API_URL, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "x-goog-api-key": CONFIG.API_KEY
                 },
                 body: JSON.stringify({
                     contents: [{ role: "user", parts }]
@@ -204,13 +193,13 @@ REASON: [Short 1-sentence technical reason]
 
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data?.error?.message || "Gemini API Call Failed.");
+                throw new Error(data?.error?.message || "Gemini 1.5 API Call Failed.");
             }
 
             return data?.candidates?.[0]?.content?.parts?.[0]?.text || "NO CLEAR SIGNAL";
         }
 
-        // ড্র্যাগেবল ফাংশন
+        // ড্র্যাগেবল হ্যান্ডলার
         function makeDraggable(element, handle, isIcon) {
             let isD = false, cX = 0, cY = 0, iX = 0, iY = 0, xO = 0, yO = 0, moved = false;
             function dS(e) {
@@ -254,7 +243,7 @@ REASON: [Short 1-sentence technical reason]
             e.stopPropagation();
         };
 
-        // স্ক্যান ও এআই রিকোয়েস্ট
+        // স্ক্যানিং ও রিয়েল এআই রেসপন্স
         botBox.querySelector('#qpb-analyze-btn').onclick = async () => {
             if (isScanning) return;
 
