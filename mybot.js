@@ -1,211 +1,303 @@
-(function(){
-    if(window.QuotexGemini36Ultra){
-        alert("Gemini 3.6 Ultra Bot age thekei chalu ache!");
+(function () {
+    if (window.QuotexProBot) {
+        alert("Quotex Pro Bot is already running!");
         return;
     }
-    window.QuotexGemini36Ultra = true;
+    window.QuotexProBot = true;
 
     const SECRET_PASSWORD = "admin";
+    // আপনার Gemini API Key বসান
+    const API_KEY = "AQ.Ab8RN6KCuyAsFwGpEMZ4EumK6bHKG_fpu9CvDPTaVWYFYKn3Bg"; 
+    const MODEL = "gemini-1.5-flash"; 
+    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/" + MODEL + ":generateContent";
 
-    let style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes cyberLaser { 0% { top: 0; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { top: 100vh; opacity: 0; } }
-        @keyframes pulseGlow { 0% { box-shadow: 0 0 12px rgba(0,255,102,0.6); } 50% { box-shadow: 0 0 30px rgba(0,255,102,1); } 100% { box-shadow: 0 0 12px rgba(0,255,102,0.6); } }
-        .cyber-laser { position: fixed; left: 0; width: 100vw; height: 4px; background: #00ff66; box-shadow: 0 0 20px #00ff66, 0 0 40px #00ff66; z-index: 999998; pointer-events: none; display: none; animation: cyberLaser 1.2s infinite linear; }
-        .glass-panel { background: rgba(10, 14, 23, 0.92) !important; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(0, 255, 102, 0.4) !important; box-shadow: 0 10px 35px rgba(0,255,102,0.25) !important; }
-        .no-select { -webkit-touch-callout: none; user-select: none; outline: none; -webkit-tap-highlight-color: transparent; }
+    let selectedImage = null;
+    let busy = false;
+    let closed = false;
+
+    const style = document.createElement("style");
+    style.textContent = `
+        @keyframes cyberScan { 0% { top: 0; opacity: 0; } 15%,85% { opacity: 1; } 100% { top: 100vh; opacity: 0; } }
+        @keyframes neonPulse { 0%,100% { box-shadow: 0 0 10px #00ff6655; } 50% { box-shadow: 0 0 24px #00ff66; } }
+        .qpb-panel { background: rgba(11,15,25,.94) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid #00ff6670 !important; box-shadow: 0 8px 32px #00ff6625 !important; color: white !important; box-sizing: border-box; }
+        .qpb-btn { border: 0; border-radius: 7px; padding: 10px; width: 100%; margin-top: 8px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .qpb-green { background:#00ff66; color:#001508; }
+        .qpb-dark { background:#16202b; color:#00ff66; border:1px solid #00ff6666; }
+        .qpb-red { background:#b91c1c; color:white; }
+        .qpb-input { width:100%; box-sizing:border-box; padding:10px; background:#05090f; border:1px solid #00ff6670; border-radius:6px; color:#00ff66; margin-top:5px; }
+        .qpb-laser { position:fixed; left:0; width:100vw; height:3px; background:#00ff66; box-shadow:0 0 20px #00ff66; z-index:2147483646; pointer-events:none; animation:cyberScan 1.2s linear infinite; }
+        .qpb-pulse { animation:neonPulse 2s infinite; }
     `;
     document.head.appendChild(style);
 
-    let fullScanner = document.createElement('div');
-    fullScanner.className = 'cyber-laser';
-    document.body.appendChild(fullScanner);
-
-    let authBox = document.createElement('div');
-    authBox.className = 'glass-panel no-select';
-    authBox.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);padding:25px;border-radius:16px;z-index:999999;text-align:center;font-family:Arial,sans-serif;color:#fff;width:270px;';
-    authBox.innerHTML = `
-        <h3 style="margin:0 0 4px 0;color:#00ff66;font-size:18px;">✨ GEMINI 3.6 ULTRA</h3>
-        <p style="margin:0 0 15px 0;font-size:10px;color:#94a3b8;">High-Accuracy Signal Engine</p>
-        <input type="password" id="botPassword" placeholder="Enter VIP Key" style="width:90%;padding:10px;background:rgba(0,0,0,0.6);border:1px solid #00ff66;color:#00ff66;border-radius:8px;text-align:center;margin-bottom:15px;outline:none;font-size:14px;">
-        <button id="loginBtn" style="width:100%;padding:11px;background:linear-gradient(45deg,#00ff66,#00cc52);color:#000;font-weight:900;border:none;border-radius:8px;cursor:pointer;font-size:13px;">LAUNCH ENGINE</button>
-    `;
-    document.body.appendChild(authBox);
-
-    document.getElementById('loginBtn').onclick = function() {
-        if(document.getElementById('botPassword').value === SECRET_PASSWORD) {
-            authBox.remove();
-            initEngine();
-        } else {
-            alert("❌ Invalid VIP Password!");
-        }
+    const el = (tag, styles = {}) => {
+        const node = document.createElement(tag);
+        Object.assign(node.style, styles);
+        return node;
     };
 
-    function initEngine(){
-        let botIcon = document.createElement('div');
-        botIcon.className = 'glass-panel no-select';
-        botIcon.style.cssText = 'position:fixed;top:120px;left:15px;padding:8px 14px;border-radius:25px;z-index:999999;display:flex;flex-direction:column;align-items:center;cursor:pointer;touch-action:none;box-shadow:0 0 18px rgba(0,255,102,0.6);background:rgba(10,14,23,0.95);';
-        botIcon.innerHTML = `
-            <div style="display:flex;align-items:center;gap:6px;">
-                <span style="font-size:18px;">✨</span>
-                <span id="iconMarketName" style="font-size:11px;font-weight:bold;color:#00ff66;">GEMINI 3.6</span>
-            </div>
-            <div id="iconSignalStatus" style="font-size:10px;font-weight:bold;color:#cbd5e1;margin-top:2px;">READY</div>
-        `;
-        document.body.appendChild(botIcon);
+    const panel = el("div", {
+        position: "fixed", top: "50%", left: "50%",
+        transform: "translate(-50%,-50%)",
+        width: "min(310px, calc(100vw - 24px))",
+        padding: "20px", borderRadius: "14px",
+        zIndex: "2147483647", fontFamily: "Arial,sans-serif",
+        textAlign: "center"
+    });
+    panel.className = "qpb-panel";
+    panel.innerHTML = `
+        <h3 style="color:#00ff66;margin:0 0 15px"> 🔒 SYSTEM LOGIN </h3> 
+        <input id="qpb-pass" type="password" class="qpb-input" placeholder="Enter password" autocomplete="off"> 
+        <button id="qpb-login" class="qpb-btn qpb-green"> ACCESS BOT </button> 
+        <div id="qpb-login-error" style="color:#ff7070;font-size:12px;margin-top:8px"></div>
+    `;
+    document.body.appendChild(panel);
 
-        let botBox = document.createElement('div');
-        botBox.className = 'glass-panel no-select';
-        botBox.style.cssText = 'position:fixed;top:120px;left:15px;padding:15px;border-radius:16px;z-index:999999;font-family:Arial,sans-serif;width:260px;touch-action:none;display:none;';
-        botBox.innerHTML = `
-            <div id="dragHeader" style="cursor:move;padding:8px;background:rgba(0,0,0,0.5);margin:-15px -15px 12px -15px;border-bottom:1px solid rgba(0,255,102,0.3);display:flex;justify-content:space-between;align-items:center;border-radius:16px 16px 0 0;">
-                <span style="font-weight:900;font-size:11px;color:#00ff66;">✨ GEMINI 3.6 PRO</span>
-                <button id="minimizeBtn" style="background:none;border:none;color:#00ff66;font-size:16px;cursor:pointer;">➖</button>
-            </div>
+    const loginInput = panel.querySelector("#qpb-pass");
 
-            <div style="margin-bottom:10px;background:rgba(0,0,0,0.4);padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);">
-                <div style="font-size:10px;color:#94a3b8;margin-bottom:2px;">📊 ACTIVE MARKET:</div>
-                <div id="marketDetectText" style="font-size:13px;font-weight:bold;color:#00ff66;">Detecting...</div>
-            </div>
-
-            <div style="margin-bottom:12px;">
-                <label style="font-size:10px;color:#cbd5e1;display:block;margin-bottom:4px;font-weight:bold;">⏱️ TRADE TIMEFRAME:</label>
-                <input type="text" id="tradeTimeInput" placeholder="e.g. 1m, 30s" value="1m" style="width:90%;background:rgba(0,0,0,0.6);color:#00ff66;border:1px solid rgba(0,255,102,0.5);padding:8px;border-radius:6px;font-weight:bold;outline:none;text-align:center;font-size:13px;">
-            </div>
-
-            <div id="signalArea" style="background:rgba(0,0,0,0.6);padding:14px 10px;border-radius:8px;text-align:center;font-weight:bold;font-size:13px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.1);color:#fff;min-height:45px;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-                READY TO SCAN
-            </div>
-
-            <button id="startScanBtn" style="width:100%;background:linear-gradient(45deg,#00ff66,#00cc52);color:#000;border:none;padding:11px;border-radius:8px;font-weight:900;cursor:pointer;margin-bottom:8px;font-size:13px;">ANALYZE MARKET 🟢</button>
-            <button id="closeBotBtn" style="width:100%;background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid #ef4444;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;">CLOSE BOT</button>
-        `;
-        document.body.appendChild(botBox);
-
-        function detectMarketName(){
-            let marketEl = document.querySelector('.asset-select__name, .current-symbol, .asset-name, .symbol-title');
-            let name = marketEl ? marketEl.innerText.trim().replace(/\n/g, ' ') : "EUR/USD (OTC)";
-            document.getElementById('marketDetectText').innerText = name;
-            let shortName = name.split(' ')[0] || "MARKET";
-            document.getElementById('iconMarketName').innerText = shortName;
-            return name;
+    function login() {
+        if (loginInput.value !== SECRET_PASSWORD) {
+            panel.querySelector("#qpb-login-error").textContent = "Access denied. Wrong password.";
+            return;
         }
+        panel.remove();
+        initializeBot();
+    }
 
-        detectMarketName();
-        setInterval(detectMarketName, 3000);
+    panel.querySelector("#qpb-login").onclick = login;
+    loginInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") login();
+    });
 
-        function makeDraggable(el, handle, isIcon){
-            let isD=false,cX=0,cY=0,iX=0,iY=0,xO=0,yO=0,moved=false;
-            function dS(e){
-                let cX_e=e.type==="touchstart"?e.touches[0].clientX:e.clientX;
-                let cY_e=e.type==="touchstart"?e.touches[0].clientY:e.clientY;
-                iX=cX_e-xO; iY=cY_e-yO; moved=false;
-                if(e.target===handle||handle.contains(e.target)||el===handle) isD=true;
-            }
-            function dE(){
-                if(isD && !moved && isIcon){
-                    if(botBox.style.display==='none'){
-                        botBox.style.display='block';
-                        botIcon.style.display='none';
-                    }
-                }
-                isD=false;
-            }
-            function d(e){
-                if(isD){
-                    e.preventDefault(); moved=true;
-                    let cX_e=e.type==="touchmove"?e.touches[0].clientX:e.clientX;
-                    let cY_e=e.type==="touchmove"?e.touches[0].clientY:e.clientY;
-                    cX=cX_e-iX; cY=cY_e-iY; xO=cX; yO=cY;
-                    el.style.transform="translate3d("+cX+"px,"+cY+"px,0)";
-                }
-            }
-            handle.addEventListener("touchstart",dS,{passive:false});
-            document.addEventListener("touchend",dE,false);
-            document.addEventListener("touchmove",d,{passive:false});
-            handle.addEventListener("mousedown",dS,false);
-            document.addEventListener("mouseup",dE,false);
-            document.addEventListener("mousemove",d,false);
-        }
+    function initializeBot() {
+        const icon = el("div", {
+            position: "fixed", top: "100px", left: "20px",
+            width: "55px", height: "55px", borderRadius: "50%",
+            display: "flex", alignItems: "center",
+            justifyContent: "center", fontSize: "25px",
+            cursor: "pointer", touchAction: "none",
+            zIndex: "2147483647"
+        });
+        icon.className = "qpb-panel qpb-pulse";
+        icon.textContent = "🤖";
+        document.body.appendChild(icon);
 
-        makeDraggable(botBox, document.getElementById('dragHeader'), false);
-        makeDraggable(botIcon, botIcon, true);
+        const box = el("div", { 
+            position: "fixed", top: "85px", left: "12px", 
+            width: "min(290px, calc(100vw - 24px))", maxHeight: "82vh", 
+            overflowY: "auto", padding: "13px", borderRadius: "14px", 
+            zIndex: "2147483647", display: "none", fontFamily: "Arial,sans-serif", 
+            touchAction: "pan-y" 
+        }); 
+        box.className = "qpb-panel"; 
+        box.innerHTML = `
+            <div id="qpb-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:move;touch-action:none;padding:7px;margin:-13px -13px 12px;background:#05090f;border-radius:13px 13px 0 0;border-bottom:1px solid #00ff6644;user-select:none"> 
+                <b style="color:#00ff66;font-size:12px"> 🤖 GEMINI CHART AI </b> 
+                <button id="qpb-min" style="color:#00ff66;background:none;border:0;font-size:19px;cursor:pointer">−</button> 
+            </div> 
+            <div style="font-size:11px;color:#a8b5c8"> MODEL: <span style="color:#00ff66">Gemini Flash AI</span> </div> 
+            <label style="display:block;font-size:12px;margin-top:13px"> Trade duration 
+                <input id="qpb-time" class="qpb-input" value="1m" placeholder="Example: 1m"> 
+            </label> 
+            <input id="qpb-file" type="file" accept="image/png,image/jpeg,image/webp" style="display:none"> 
+            <button id="qpb-choose" class="qpb-btn qpb-dark"> 📷 CHOOSE CHART SCREENSHOT </button> 
+            <div id="qpb-preview-wrap" style="display:none;margin-top:9px"> 
+                <img id="qpb-preview" alt="Selected chart" style="width:100%;max-height:180px;object-fit:contain;border-radius:7px;background:#05090f"> 
+                <div id="qpb-filename" style="font-size:10px;color:#9ca3af;overflow-wrap:anywhere"></div> 
+            </div> 
+            <div id="qpb-result" style="background:#05090f;border:1px solid #ffffff20;border-radius:8px;padding:12px;margin-top:12px;min-height:65px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.5;color:white"> SYSTEM READY Choose a chart screenshot to begin. </div> 
+            <button id="qpb-analyze" class="qpb-btn qpb-green"> ANALYZE WITH GEMINI </button> 
+            <button id="close-system-btn" class="qpb-btn qpb-red"> CLOSE SYSTEM </button> 
+            <div style="font-size:10px;color:#94a3b8;margin-top:10px"> AI analysis is uncertain. Not financial advice. No automatic trades are placed. </div>
+        `; 
+        document.body.appendChild(box); 
 
-        document.getElementById('minimizeBtn').onclick = function(e){
-            botBox.style.display = 'none';
-            botIcon.style.display = 'flex';
-            e.stopPropagation();
-        };
+        const $ = selector => box.querySelector(selector); 
+        const result = $("#qpb-result"); 
+        const fileInput = $("#qpb-file"); 
+        const analyzeBtn = $("#qpb-analyze"); 
+        let laser = null; 
+        let previewURL = null; 
 
-        function playSound(type){
-            let ctx = new(window.AudioContext||window.webkitAudioContext)();
-            let osc = ctx.createOscillator();
-            let gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination);
-            if(type==='scan'){
-                osc.type='sawtooth'; osc.frequency.setValueAtTime(300,ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.4);
-                gain.gain.setValueAtTime(0.04,ctx.currentTime); osc.start(); osc.stop(ctx.currentTime+0.4);
-            }else if(type==='success'){
-                osc.type='sine'; osc.frequency.setValueAtTime(800,ctx.currentTime); osc.frequency.setValueAtTime(1200,ctx.currentTime+0.1);
-                gain.gain.setValueAtTime(0.08,ctx.currentTime); osc.start(); osc.stop(ctx.currentTime+0.2);
-            }
-        }
+        $("#qpb-choose").onclick = () => fileInput.click(); 
+        fileInput.onchange = () => { 
+            const file = fileInput.files && fileInput.files[0]; 
+            if (!file) return; 
+            if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { 
+                result.textContent = "Please select a PNG, JPEG or WebP image."; 
+                return; 
+            } 
+            if (file.size > 10 * 1024 * 1024) { 
+                result.textContent = "Image is too large. Choose an image under 10 MB."; 
+                fileInput.value = ""; 
+                return; 
+            } 
+            selectedImage = file; 
+            if (previewURL) URL.revokeObjectURL(previewURL); 
+            previewURL = URL.createObjectURL(file); 
+            $("#qpb-preview").src = previewURL; 
+            $("#qpb-preview-wrap").style.display = "block"; 
+            $("#qpb-filename").textContent = file.name; 
+            result.textContent = "Chart selected. Ready for Gemini analysis."; 
+        }; 
 
-        document.getElementById('startScanBtn').onclick = function(){
-            let timeInput = document.getElementById('tradeTimeInput').value;
-            let activeMarket = detectMarketName();
-            if(timeInput.trim()===""){ alert("Please enter time!"); return; }
+        async function analyzeWithGemini(file, duration) { 
+            const base64 = await new Promise((resolve, reject) => { 
+                const reader = new FileReader(); 
+                reader.onload = () => { 
+                    const dataURL = String(reader.result || ""); 
+                    const comma = dataURL.indexOf(","); 
+                    if (comma < 0) { 
+                        reject(new Error("Could not read image data.")); 
+                        return; 
+                    } 
+                    resolve(dataURL.slice(comma + 1)); 
+                }; 
+                reader.onerror = () => reject(new Error("Could not read image.")); 
+                reader.readAsDataURL(file); 
+            }); 
 
-            let signalArea = document.getElementById('signalArea');
-            let btn = document.getElementById('startScanBtn');
-            let iconStatus = document.getElementById('iconSignalStatus');
+            const prompt = `You are an image-based technical chart analysis assistant. Analyze only the attached screenshot. Do not claim to see live market data or hidden indicators. The requested trade duration is: ${duration}. Inspect visible candles, apparent trend, support/resistance if identifiable, and any readable indicators. If the screenshot is unclear, lacks sufficient candles, or does not support a directional view, choose NO CLEAR SIGNAL. Return: Signal: UP, DOWN, or NO CLEAR SIGNAL. Observation: brief explanation of what is visibly present. Reason: evidence from the screenshot. Limitations: important uncertainty. Do not invent indicator values, market prices, backtest results, or win-rate/accuracy percentages. A directional view is not a guarantee of the next price movement. Do not instruct automatic execution of a trade.`;
 
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
+            const response = await fetch(API_URL, { 
+                method: "POST", 
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "x-goog-api-key": API_KEY 
+                }, 
+                body: JSON.stringify({ 
+                    contents: [{ 
+                        role: "user", 
+                        parts: [ 
+                            { text: prompt }, 
+                            { inline_data: { mime_type: file.type, data: base64 } } 
+                        ] 
+                    }] 
+                }) 
+            }); 
 
-            // Automatic Minimize when scan starts
-            botBox.style.display = 'none';
-            botIcon.style.display = 'flex';
-            iconStatus.style.color = '#00ff66';
-            iconStatus.innerHTML = `SCANNING... ⏳`;
+            const data = await response.json().catch(() => ({})); 
+            if (!response.ok) { 
+                const message = data?.error?.message || "Unknown API error"; 
+                if (response.status === 400 || response.status === 404) { 
+                    throw new Error("Request/model error. Check model ID, image and API settings. " + message); 
+                } 
+                if (response.status === 401 || response.status === 403) { 
+                    throw new Error("API key rejected or access denied. Check your key and permissions. " + message); 
+                } 
+                if (response.status === 429) { 
+                    throw new Error("API quota or rate limit reached. Check your AI Studio usage. " + message); 
+                } 
+                throw new Error("Gemini API error (" + response.status + "): " + message); 
+            } 
 
-            fullScanner.style.display = 'block';
-            playSound('scan');
+            const parts = data?.candidates?.[0]?.content?.parts || []; 
+            const answer = parts 
+                .filter(part => typeof part.text === "string") 
+                .map(part => part.text) 
+                .join("\n") 
+                .trim(); 
 
-            setTimeout(()=>{
-                playSound('scan');
-                setTimeout(()=>{
-                    fullScanner.style.display = 'none';
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
+            if (!answer) { 
+                throw new Error("Gemini returned no readable text. Check API response and safety settings."); 
+            } 
+            return answer; 
+        } 
 
-                    playSound('success');
+        analyzeBtn.onclick = async () => { 
+            if (busy) return; 
+            if (!API_KEY || API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") { 
+                result.textContent = "Setup required: add your Gemini API key in the API_KEY constant."; 
+                return; 
+            } 
+            if (!selectedImage) { 
+                result.textContent = "Choose a chart screenshot first. This bookmarklet cannot capture another app's screen by itself."; 
+                return; 
+            } 
+            const duration = $("#qpb-time").value.trim(); 
+            if (!duration) { 
+                result.textContent = "Enter a trade duration, e.g. 1m."; 
+                return; 
+            } 
 
-                    let isUp = Math.random() > 0.48;
-                    let accuracy = Math.floor(Math.random() * 12) + 86; // High probability calculation
-                    let signalText = isUp ? 'UP (CALL) 🟢' : 'DOWN (PUT) 🔴';
-                    let signalColor = isUp ? '#00ff66' : '#ef4444';
+            busy = true; 
+            analyzeBtn.disabled = true; 
+            analyzeBtn.style.opacity = "0.55"; 
+            result.style.color = "#00ff66"; 
+            result.textContent = "Sending chart image to Gemini...\nPlease wait."; 
+            laser = el("div"); 
+            laser.className = "qpb-laser"; 
+            document.body.appendChild(laser); 
 
-                    // Update Minimized Side Floating Button Signal
-                    iconStatus.style.color = signalColor;
-                    iconStatus.innerHTML = `<span style="font-size:11px;font-weight:900;">${isUp?'🟢 CALL':'🔴 PUT'} (${timeInput})</span>`;
+            try { 
+                const answer = await analyzeWithGemini(selectedImage, duration); 
+                result.style.color = "#ffffff"; 
+                result.textContent = answer; 
+            } catch (error) { 
+                result.style.color = "#ff8585"; 
+                result.textContent = "ANALYSIS FAILED\n" + (error?.message || "Unexpected error."); 
+            } finally { 
+                busy = false; 
+                analyzeBtn.disabled = false; 
+                analyzeBtn.style.opacity = "1"; 
+                if (laser) { 
+                    laser.remove(); 
+                    laser = null; 
+                } 
+            } 
+        }; 
 
-                    // Update Main Box Signal Area
-                    signalArea.style.color = signalColor;
-                    signalArea.innerHTML = `
-                        <span style="font-size:10px;color:#cbd5e1;">MARKET: ${activeMarket}</span><br>
-                        <span style="font-size:18px;font-weight:900;margin-top:3px;">${signalText}</span><br>
-                        <span style="font-size:11px;color:#00ff66;margin-top:4px;">Accuracy: ${accuracy}% | Time: ${timeInput}</span>
-                    `;
-                }, 1800);
-            }, 1500);
-        };
+        function makeDraggable(element, handle) { 
+            let dragging = false; 
+            let startX = 0, startY = 0, originX = 0, originY = 0; 
+            let posX = 0, posY = 0; 
+            handle.addEventListener("pointerdown", e => { 
+                if (e.target.closest("button,input")) return; 
+                dragging = true; 
+                const rect = element.getBoundingClientRect(); 
+                startX = e.clientX; startY = e.clientY; 
+                originX = rect.left; originY = rect.top; 
+                element.style.left = originX + "px"; 
+                element.style.top = originY + "px"; 
+                element.style.right = "auto"; element.style.bottom = "auto"; 
+                element.style.transform = "none"; 
+                try { handle.setPointerCapture(e.pointerId); } catch (_) {} 
+                e.preventDefault(); 
+            }); 
 
-        document.getElementById('closeBotBtn').onclick = function(){
-            botBox.remove();
-            botIcon.remove();
-            fullScanner.remove();
-            window.QuotexGemini36Ultra = false;
-        };
+            handle.addEventListener("pointermove", e => { 
+                if (!dragging) return; 
+                posX = Math.max(0, Math.min(window.innerWidth - element.offsetWidth, originX + e.clientX - startX)); 
+                posY = Math.max(0, Math.min(window.innerHeight - 45, originY + e.clientY - startY)); 
+                element.style.left = posX + "px"; 
+                element.style.top = posY + "px"; 
+            }); 
+
+            const stop = () => { dragging = false; }; 
+            handle.addEventListener("pointerup", stop); 
+            handle.addEventListener("pointercancel", stop); 
+        } 
+
+        makeDraggable(box, $("#qpb-header")); 
+        makeDraggable(icon, icon); 
+
+        function showIcon() { box.style.display = "none"; icon.style.display = "flex"; } 
+        function showPanel() { box.style.display = "block"; icon.style.display = "none"; } 
+
+        icon.addEventListener("click", showPanel); 
+        $("#qpb-min").onclick = showIcon; 
+        $("#close-system-btn").onclick = () => { 
+            if (busy) { 
+                result.textContent = "Please wait for the current API request to finish before closing."; 
+                return; 
+            } 
+            closed = true; 
+            if (previewURL) URL.revokeObjectURL(previewURL); 
+            if (laser) laser.remove(); 
+            box.remove(); 
+            icon.remove(); 
+            style.remove(); 
+            window.QuotexProBot = false; 
+        }; 
     }
 })();
