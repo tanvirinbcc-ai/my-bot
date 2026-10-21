@@ -8,7 +8,7 @@
     // ১. কনফিগারেশন সেটআপ
     const CONFIG = {
         SECRET_PASSWORD: "admin",
-        API_KEY: "AQ.Ab8RN6JOsuio-gN9f8Fr1ORdUZoAwgS9xqac1AzRwJFwdjqU8A",
+        API_KEY: "AQ.Ab8RN6Ju82vtBQLVa8tKgWrN4628IDLYAcA6i4RZAJSBSgTCVA",
         MODEL: "gemini-1.5-flash",
         API_URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
     };
