@@ -8,9 +8,8 @@
     // ১. কনফিগারেশন সেটআপ
     const CONFIG = {
         SECRET_PASSWORD: "admin",
-        API_KEY: "AQ.Ab8RN6Ju82vtBQLVa8tKgWrN4628IDLYAcA6i4RZAJSBSgTCVA",
-        MODEL: "gemini-1.5-flash",
-        API_URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+        API_KEY: "AQ.Ab8RN6Ju82vtBQLVa8tKgWrN4628IDLYAcA6i4RZAJSBSgTCVA", // গুগল এআই স্টুডিওর AIzaSy... দিয়ে শুরু হওয়া Key দিতে হবে
+        MODEL: "gemini-1.5-flash"
     };
 
     // ২. সিএসএস স্টাইল
@@ -53,7 +52,7 @@
         <h3 style="color:#00ff66; margin:0 0 4px; font-size: 18px;">✨ REAL GEMINI 1.5 BOT</h3>
         <p style="color:#94a3b8; margin:0 0 15px; font-size: 10px;">Direct AI Market Neural Engine</p>
         <input id="qpb-pass" type="password" class="qpb-input" placeholder="Password (admin)" autocomplete="off">
-        <input id="qpb-key" type="password" class="qpb-input" placeholder="Gemini API Key (Optional if preset)" autocomplete="off">
+        <input id="qpb-key" type="password" class="qpb-input" placeholder="Enter Gemini API Key (AIzaSy...)" autocomplete="off">
         <button id="qpb-login-btn" class="qpb-btn qpb-green" style="margin-top:14px;">LAUNCH ENGINE</button>
         <div id="qpb-login-error" style="color:#ff7070; font-size:12px; margin-top:10px;"></div>
     `;
@@ -67,9 +66,17 @@
             loginModal.querySelector("#qpb-login-error").textContent = "❌ পাসওয়ার্ড ভুল হয়েছে!";
             return;
         }
-        if (keyInput.value.trim() !== "") {
-            CONFIG.API_KEY = keyInput.value.trim();
+        
+        const enteredKey = keyInput.value.trim();
+        if (enteredKey !== "") {
+            CONFIG.API_KEY = enteredKey;
         }
+
+        if (!CONFIG.API_KEY || !CONFIG.API_KEY.startsWith("AIzaSy")) {
+            loginModal.querySelector("#qpb-login-error").textContent = "❌ সঠিক Gemini API Key (AIzaSy...) দিন!";
+            return;
+        }
+
         loginModal.remove();
         initializeBot();
     }
@@ -105,7 +112,7 @@
         });
         botBox.className = "qpb-panel no-select";
         botBox.innerHTML = `
-            <div id="qpb-header" style="cursor:move; padding:8px; background:rgba(0,0,0,0.5); margin:-15px -15px 12px -15px; border-bottom:1px solid rgba(0,255,102,0.3); display:flex; justify-content:space-between; align-items:center; border-radius:16px 16px 0 0;">
+            <div id="qpb-header" style="cursor:move; padding:8px; background:rgba(0,0,0,0.5); margin:-15px -15px 12px -15px; border-bottom:1px solid rgba(0,255,102,0.3); display:flex; justify-between:center; align-items:center; border-radius:16px 16px 0 0;">
                 <span style="font-weight:900; font-size:11px; color:#00ff66;">✨ REAL GEMINI 1.5 AI</span>
                 <button id="qpb-min" style="background:none; border:none; color:#00ff66; font-size:16px; cursor:pointer;">➖</button>
             </div>
@@ -160,12 +167,8 @@
             }
         }
 
-        // Gemini 1.5 API কল ফাংশন
+        // Gemini API কল ফাংশন (সংশোধিত)
         async function fetchGeminiAnalysis(activeMarket, timeframe) {
-            if (!CONFIG.API_KEY) {
-                throw new Error("Missing Gemini API Key! Please enter key at login.");
-            }
-
             const canvasBase64 = getCanvasBase64();
             const promptText = `
 You are an expert technical analysis assistant evaluating a trading chart for asset ${activeMarket} with trade duration ${timeframe}.
@@ -187,11 +190,12 @@ REASON: [Short 1-sentence technical reason]
                 });
             }
 
-            const response = await fetch(CONFIG.API_URL, {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.MODEL}:generateContent?key=${CONFIG.API_KEY}`;
+
+            const response = await fetch(endpoint, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "x-goog-api-key": CONFIG.API_KEY
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     contents: [{ role: "user", parts }]
@@ -200,7 +204,7 @@ REASON: [Short 1-sentence technical reason]
 
             const data = await response.json();
             if (!response.ok) {
-                throw new Error(data?.error?.message || "Gemini 1.5 API Call Failed.");
+                throw new Error(data?.error?.message || "Gemini API Call Failed.");
             }
 
             return data?.candidates?.[0]?.content?.parts?.[0]?.text || "NO CLEAR SIGNAL";
